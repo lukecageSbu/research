@@ -34,6 +34,7 @@ temp_inference/
 !requirements.txt
 !config.yaml
 !*.md
+!data/sample_5_objects.json
 
 # IDE
 .vscode/
