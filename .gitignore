@@ -29,6 +29,10 @@ embeddings_*/
 dev_embeddings/
 temp_inference/
 
+# Large data files
+inference_improved_full_dev.json
+official_eval_format.json
+
 # Data files
 *.json
 !requirements.txt
