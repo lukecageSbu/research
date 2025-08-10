@@ -1,0 +1,75 @@
+# HotpotQA GNN Configuration - Optimized for Better Supporting Facts Identification
+
+model:
+  type: graphsage
+  hidden_dim: 256
+  num_layers: 3
+  dropout: 0.1
+  activation: relu
+  # Model architecture settings
+  graph_pooling: mean  # How to pool node representations
+  edge_features: true  # Use edge features (overlap scores)
+  node_features: true  # Use node features (embeddings)
+
+graph:
+  # Graph construction parameters
+  similarity_threshold: 0.1  # Minimum similarity for edge creation
+  max_edges_per_node: 20    # Limit edges to prevent over-connection
+  edge_features: true       # Include overlap features as edge attributes
+  normalize_features: true  # Normalize node features
+  
+inference:
+  # ADAPTIVE CHAIN LENGTH - Key improvement!
+  max_hops: 3              # Reduced from 5 to match typical supporting facts (2-3)
+  adaptive_stopping: true  # Stop early if no good candidates
+  confidence_threshold: 0.5 # Stop if best candidate score < threshold
+  chain_width: 3           # Number of parallel chains to maintain
+  
+  # Early stopping criteria
+  plateau_patience: 2      # Stop if score doesn't improve for N hops
+  score_improvement_threshold: 0.05  # Minimum improvement to continue
+  
+  # Supporting facts focused evaluation
+  max_supporting_facts: 3  # Focus on top-3 for HotpotQA
+  diversify_chains: true   # Encourage diverse reasoning paths
+
+scoring:
+  # Improve scoring for supporting facts identification
+  paragraph_weight: 1.0    # Weight for paragraph relevance
+  connection_weight: 0.3   # Weight for inter-paragraph connections
+  diversity_bonus: 0.1     # Bonus for selecting diverse paragraphs
+
+retrieval:
+  conditioning_layer: true  # Enable conditioning GNN
+  context_pool: mean
+  type: mlp
+  layers: 2
+  activation: relu
+
+scorer:
+  conditioning_layer: true  # Enable conditioning GNN
+  context_pool: mean
+  type: mlp
+  layers: 2
+  activation: relu
+
+training:
+  aux_node_loss_weight: 0.2
+  batch_size: 16  # Increased batch size for larger dataset
+  epochs: 10  # More epochs for larger dataset
+  loss: bce
+  lr: 0.0001  # Lower LR for larger dataset and stability
+  max_hops: 3  # Match inference max_hops for consistency
+  optimizer: adamw
+  pos_weight: 4.0
+  weight_decay: 0.0001
+  early_stopping_patience: 8  # More patience for larger dataset
+  val_split: 0.2  # Use 20% of 50% for validation
+
+data:
+  dataset_fraction: 0.5  # Use 50% of the dataset
+  max_paragraphs: 10  # Keep limit for memory efficiency
+  min_paragraphs: 2
+  embedding_model: "all-MiniLM-L6-v2"  # Fast sentence transformer
+  cache_embeddings: true
+  num_workers: 4  # More workers for larger dataset
